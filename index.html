@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>악마·마법·지렁이 문장 실험실</title>
+  <title>문장 실험실: 악마·마법·지렁이 + 모든 주제</title>
   <style>
     :root{
       --bg:#050508;
@@ -20,16 +20,15 @@
       margin:0;
       color:var(--fg);
       background:
-        radial-gradient(900px 600px at 18% 26%, rgba(90,40,120,.28) 0%, transparent 55%),
-        radial-gradient(900px 600px at 82% 72%, rgba(170,45,70,.23) 0%, transparent 58%),
-        radial-gradient(800px 500px at 50% 105%, rgba(20,120,90,.18) 0%, transparent 60%),
+        radial-gradient(950px 650px at 14% 22%, rgba(90,40,120,.28) 0%, transparent 55%),
+        radial-gradient(950px 650px at 84% 76%, rgba(170,45,70,.23) 0%, transparent 58%),
+        radial-gradient(900px 520px at 50% 110%, rgba(20,120,90,.18) 0%, transparent 60%),
         linear-gradient(180deg, #0a0a12, var(--bg));
       overflow:hidden;
       font-family: system-ui, -apple-system, "Pretendard", Segoe UI, Roboto, sans-serif;
       display:flex; align-items:center; justify-content:center;
     }
 
-    /* 살짝 취한 흔들림 */
     .sway{ animation: sway 6.8s ease-in-out infinite; transform-origin: 50% 55%; }
     @keyframes sway{
       0%{transform: rotate(0deg) translateY(0px)}
@@ -38,7 +37,6 @@
       100%{transform: rotate(0deg) translateY(0px)}
     }
 
-    /* 노이즈 */
     .grain{
       position:fixed; inset:0;
       pointer-events:none;
@@ -47,7 +45,6 @@
       opacity:.075;
     }
 
-    /* 떠다니는 단어들 */
     .float{ position:fixed; inset:-20vh -20vw; pointer-events:none; z-index:1; opacity:.22; }
     .float span{
       position:absolute; white-space:nowrap; user-select:none;
@@ -63,7 +60,7 @@
     }
 
     .wrap{
-      width:min(980px, 92vw);
+      width:min(1040px, 92vw);
       padding:24px;
       position:relative;
       z-index:2;
@@ -104,8 +101,8 @@
     }
 
     .sentence{
-      font-size: clamp(22px, 3.0vw, 40px);
-      line-height:1.35;
+      font-size: clamp(20px, 2.7vw, 40px);
+      line-height:1.36;
       letter-spacing:-0.02em;
       white-space:pre-wrap;
       word-break:keep-all;
@@ -130,15 +127,16 @@
       gap:10px;
       color:var(--muted);
       font-size:12px;
+      flex-wrap:wrap;
     }
 
     .hud{
       margin-top:14px;
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
+      grid-template-columns: 1.4fr .6fr;
       gap:14px;
     }
-    @media (max-width: 740px){
+    @media (max-width: 820px){
       .hud{ grid-template-columns: 1fr; }
     }
     .panel{
@@ -157,13 +155,20 @@
       font-weight:650;
     }
 
-    .bars{ display:flex; flex-direction:column; gap:10px; }
-    .barrow{ display:grid; grid-template-columns: 64px 1fr 44px; gap:10px; align-items:center; }
-    .label{ font-size:12px; color:#d9d9e7; opacity:.95; }
-    .track{ height:10px; border-radius:999px; border:1px solid var(--line); background:#07070d; overflow:hidden; }
-    .fill{ height:100%; width:0%; border-radius:999px; background: linear-gradient(90deg, rgba(255,255,255,.10), rgba(255,255,255,.22)); transition: width .45s ease; }
-    .pct{ font-size:12px; color:#bdbdd0; text-align:right; }
-
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    select{
+      border:1px solid var(--line);
+      background:#0a0a12;
+      color:var(--fg);
+      padding:10px 12px;
+      border-radius:14px;
+      font-size:13px;
+      outline:none;
+      box-shadow: var(--glow);
+      max-width:100%;
+    }
     .btns{ display:flex; gap:10px; flex-wrap:wrap; }
     button{
       border:1px solid var(--line);
@@ -195,7 +200,13 @@
       color:#e6e6f2;
     }
 
-    /* 토스트 */
+    .bars{ display:flex; flex-direction:column; gap:10px; }
+    .barrow{ display:grid; grid-template-columns: 92px 1fr 44px; gap:10px; align-items:center; }
+    .label{ font-size:12px; color:#d9d9e7; opacity:.95; }
+    .track{ height:10px; border-radius:999px; border:1px solid var(--line); background:#07070d; overflow:hidden; }
+    .fill{ height:100%; width:0%; border-radius:999px; background: linear-gradient(90deg, rgba(255,255,255,.10), rgba(255,255,255,.22)); transition: width .45s ease; }
+    .pct{ font-size:12px; color:#bdbdd0; text-align:right; }
+
     .toast{
       position:fixed;
       left:50%;
@@ -224,10 +235,11 @@
   <div class="wrap sway">
     <div class="top">
       <div class="brand">
-        <div class="title">sentence lab</div>
-        <div class="subtitle">악마·마법·지렁이 — 클릭할수록 세계관이 너 쪽으로 학습된다</div>
+        <div class="title">sentence lab v2</div>
+        <div class="subtitle">주제 12개 · 패턴 40+ · 단어 풀 확장 · 클릭할수록 너 취향으로 편향</div>
       </div>
       <div class="chips">
+        <div class="chip" id="topicChip">TOPIC: AUTO</div>
         <div class="chip" id="moodChip">MOOD: ???</div>
         <div class="chip" id="countChip">#000</div>
       </div>
@@ -236,33 +248,47 @@
     <div class="card">
       <div id="sentence" class="sentence" title="클릭하면 다음 문장"></div>
       <div class="meta">
-        <div>클릭/스페이스/엔터: 다음 · <kbd>C</kbd> 복사 · <kbd>A</kbd> 추가 · <kbd>R</kbd> 리셋</div>
+        <div>
+          클릭/스페이스/엔터: 다음 · <kbd>C</kbd> 복사 · <kbd>A</kbd> 추가 · <kbd>T</kbd> 주제 AUTO · <kbd>R</kbd> 리셋
+        </div>
         <div id="seedInfo">bias: -</div>
       </div>
 
       <div class="hud">
         <div class="panel">
-          <h3>world bias</h3>
+          <h3>topic + world bias</h3>
+          <div class="row">
+            <select id="topicSelect" title="주제 선택">
+              <option value="AUTO">AUTO (알아서 섞기)</option>
+            </select>
+            <button id="btnAuto">AUTO로</button>
+            <button id="btnShuffle">주제 섞기</button>
+          </div>
+
+          <div class="tiny">AUTO는 네가 많이 본 주제로 자동 편향됨. 수동 선택하면 그 주제 위주로 나옴.</div>
+
+          <div style="height:12px"></div>
+
           <div class="bars">
             <div class="barrow">
-              <div class="label">악마</div>
+              <div class="label">악마/어둠</div>
               <div class="track"><div class="fill" id="barDevil"></div></div>
               <div class="pct" id="pctDevil">0%</div>
             </div>
             <div class="barrow">
-              <div class="label">마법</div>
+              <div class="label">마법/초현실</div>
               <div class="track"><div class="fill" id="barMagic"></div></div>
               <div class="pct" id="pctMagic">0%</div>
             </div>
             <div class="barrow">
-              <div class="label">지렁이</div>
+              <div class="label">지렁이/흙</div>
               <div class="track"><div class="fill" id="barWorm"></div></div>
               <div class="pct" id="pctWorm">0%</div>
             </div>
           </div>
+
           <div class="tiny">
-            너가 문장을 많이 눌러서 나올수록(=많이 본 단어일수록) 그 단어가 더 자주 등장함.<br>
-            즉, 이 사이트는 점점 “너 전용 이상한 문장”이 된다.
+            학습은 로컬 저장(브라우저). 많이 눌러볼수록 “너 스타일 이상문장”이 됨.
           </div>
         </div>
 
@@ -275,8 +301,8 @@
             <button id="btnReset">리셋(R)</button>
           </div>
           <div class="tiny">
-            추가한 문장은 브라우저에 저장됨(로컬 저장). 지워지지 않음.<br>
-            “리셋”하면 저장된 것들까지 싹 초기화됨.
+            단축키: <kbd>Space</kbd>/<kbd>Enter</kbd> 다음 · <kbd>C</kbd> 복사 · <kbd>A</kbd> 추가 · <kbd>T</kbd> AUTO · <kbd>R</kbd> 리셋<br>
+            “주제 섞기”는 수동 주제에서도 랜덤하게 일부 섞이게 만드는 스위치임.
           </div>
         </div>
       </div>
@@ -285,12 +311,15 @@
 
 <script>
   // ---------------------------
-  // 0) 저장/로드
+  // 저장/로드
   // ---------------------------
   const KEY = {
-    lines: "lab_lines_v1",
-    clicks: "lab_clicks_v1",
-    bias: "lab_bias_v1"
+    lines: "labv2_lines",
+    clicks: "labv2_clicks",
+    bias: "labv2_bias",
+    topicBias: "labv2_topic_bias",
+    topic: "labv2_topic",
+    mix: "labv2_mix"
   };
 
   function load(k, fallback){
@@ -302,85 +331,13 @@
   function save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
 
   // ---------------------------
-  // 1) 문장 재료(세계관)
-  // ---------------------------
-  const seedLines = [
-    "당근 응 악마? 응 마법 지렁이.",
-    "응… 어… 어….(생각 로딩중)",
-    "악마가 말했다: '응.' 그리고 그게 끝이었다.",
-    "마법은 있었는데, 사용법이 없었다.",
-    "지렁이는 흙을 먹고도 멀쩡했다. 나는 말을 먹고 무너진다.",
-    "당근은 무죄다. 문제는 내가 의미를 찾는 속도다.",
-    "오늘도 세계는 정상이고, 나만 업데이트 실패.",
-    "응, 근데 왜 이렇게 딱 맞는 기분이지?",
-    "악마와 마법과 지렁이가 한 테이블에 앉아 있었다. 내가 초대했다.",
-    "어쩌면 난 그냥… 설명이 안 되는 타입."
-  ];
-
-  const parts = {
-    opener: ["응", "아니", "어..", "어....", "ㅇㅋ", "ㅇㅇ", "잠깐", "그래", "몰라", "맞아"],
-    subject: ["당근", "새벽", "천장", "바닥", "귓속", "키보드", "심장", "문", "거울", "전파"],
-    agent: ["악마", "마법", "지렁이", "천사", "버그", "주문", "현실", "환각", "알고리즘", "그림자"],
-    action: ["속삭였다", "웃었다", "사라졌다", "남아있었다", "부서졌다", "붙어버렸다", "흘러갔다", "바뀌었다", "뒤집혔다", "잠들었다"],
-    ending: [
-      "그래서 난 그냥 {opener}.",
-      "근데 이상하게도 맞는 말 같다.",
-      "이건 꿈인데 저장이 된다.",
-      "설명하려고 하면 더 틀어진다.",
-      "다음 문장에 모든 걸 맡긴다."
-    ]
-  };
-
-  const patterns = [
-    "{opener}. {subject} 옆에서 {agent}가 {action}. {ending}",
-    "{subject}는 무죄고, {agent}가 유죄고, 난 목격자다.",
-    "{agent}가 내게 말했다: '{opener}, 오늘은 {subject}를 믿지 마.'",
-    "규칙 1: {subject}를 의심해.\n규칙 2: {agent}를 과신하지 마.\n규칙 3: 그래도 {opener}.",
-    "{opener}… 지금 {agent}가 내 생각을 리라이트 중.",
-    "{subject} 위에서 {agent}가 {action}. 나는 로그만 남겼다."
-  ];
-
-  // ---------------------------
-  // 2) '학습'용 바이어스(가중치)
-  // 클릭할수록 DEVIL/MAGIC/WORM(핵심 단어)의 확률이 올라감
-  // ---------------------------
-  const bias = load(KEY.bias, { devil: 1, magic: 1, worm: 1 });
-  let clicks = load(KEY.clicks, 0);
-  let userLines = load(KEY.lines, []);
-
-  // 핵심 단어 사전
-  const core = {
-    devil: ["악마"],
-    magic: ["마법", "주문"],
-    worm: ["지렁이", "흙"]
-  };
-
-  // ---------------------------
-  // 3) UI
-  // ---------------------------
-  const el = {
-    sentence: document.getElementById("sentence"),
-    toast: document.getElementById("toast"),
-    mood: document.getElementById("moodChip"),
-    count: document.getElementById("countChip"),
-    seedInfo: document.getElementById("seedInfo"),
-    barDevil: document.getElementById("barDevil"),
-    barMagic: document.getElementById("barMagic"),
-    barWorm: document.getElementById("barWorm"),
-    pctDevil: document.getElementById("pctDevil"),
-    pctMagic: document.getElementById("pctMagic"),
-    pctWorm: document.getElementById("pctWorm"),
-  };
-
-  // ---------------------------
-  // 4) 유틸
+  // 유틸
   // ---------------------------
   const rnd = (n)=> Math.floor(Math.random()*n);
   function pick(arr){ return arr[rnd(arr.length)]; }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
 
-  // 가중치 선택(룰렛)
   function weightedPick(options){
-    // options: [{value, weight}, ...]
     const sum = options.reduce((a,o)=>a+o.weight,0);
     let r = Math.random()*sum;
     for(const o of options){
@@ -390,18 +347,294 @@
     return options[options.length-1].value;
   }
 
-  function format(template, map){
-    return template.replace(/\{(\w+)\}/g, (_,k)=> map[k] ?? `{${k}}`);
+  function format(t, map){
+    return t.replace(/\{(\w+)\}/g, (_,k)=> map[k] ?? `{${k}}`);
   }
 
+  // ---------------------------
+  // 토스트
+  // ---------------------------
+  const elToast = document.getElementById("toast");
   function toast(msg){
-    el.toast.textContent = msg;
-    el.toast.style.opacity = "1";
+    elToast.textContent = msg;
+    elToast.style.opacity = "1";
     clearTimeout(toast._t);
-    toast._t = setTimeout(()=> el.toast.style.opacity="0", 900);
+    toast._t = setTimeout(()=> elToast.style.opacity="0", 900);
   }
 
-  function normalizeBias(){
+  // ---------------------------
+  // 주제(12개)
+  // ---------------------------
+  const TOPICS = {
+    "DEVIL": "악마/어둠",
+    "MAGIC": "마법/초현실",
+    "WORM": "지렁이/흙",
+    "NIGHT": "새벽/몽롱",
+    "SCHOOL": "학교/수업",
+    "TECH": "기술/버그",
+    "GAME": "게임/랭크",
+    "FRIEND": "친구/대화",
+    "FEEL": "감정/자기고백",
+    "COSMOS": "우주/철학",
+    "CITY": "도시/사람들",
+    "META": "메타/자기참조"
+  };
+
+  // ---------------------------
+  // 단어 풀(카테고리별 “엄청 다양하게”)
+  // ---------------------------
+  const LEX = {
+    opener: ["응","아니","어..","어....","ㅇㅋ","ㅇㅇ","잠깐","그래","몰라","맞아","인정","부정","ㄴㄴ","ㅇㅇㅋ","흠","아잇","진짜","그만","계속","한번만"],
+    connector: ["근데","그래서","그러니까","결국","아무튼","한편","그런데도","대신","오히려","게다가","그 와중에","문제는","결론은"],
+    time: ["지금","방금","어제","오늘","내일","새벽","밤","한낮","수업시간","쉬는시간","집 가는 길","불 꺼진 방","로그아웃 직전"],
+    subject: ["당근","천장","바닥","거울","문고리","가로등","침대","책상","복도","교실","운동장","이어폰","마우스","키보드","배터리","서버","창문","노트","손등","심장","목","눈꺼풀","숨","알림","진동"],
+    person: ["나","너","우리","그 사람","선생님","친구","모르는 사람","미래의 나","과거의 나","낯선 목소리","채팅창","익명","관전자","제3자","내 안의 나"],
+    creature: ["악마","천사","마법사","지렁이","고양이","까마귀","그림자","망령","요정","버그","알고리즘","검은 점","하얀 소음","이모지","아이콘","NPC","보스","미니언","공허"],
+    magic: ["마법","주문","저주","룬","기적","환각","현실","꿈","딜레이","동기화","리셋","패치","버전업","백업","복원","포탈","결계","버프","디버프"],
+    emotion: ["허무","짜증","기쁨","불안","안도","쓸쓸함","설렘","멍함","분노","무기력","용기","포기","집착","평온","혼란","바쁨","피로","진정","미묘함"],
+    action: ["속삭였다","웃었다","사라졌다","남아있었다","부서졌다","붙어버렸다","흘러갔다","바뀌었다","뒤집혔다","잠들었다","깨달았다","거짓말했다","사과했다","도망쳤다","로그를 남겼다","눈을 감았다","눈치를 봤다","대답을 삼켰다","현타를 맞았다"],
+    tech: ["오류","버그","로딩","크래시","권한","로그","서버","포트","프록시","캐시","쿠키","세션","도메인","방화벽","재시작","빌드","배포","레포","커밋","패킷","핑","지연","업타임","다운타임"],
+    school: ["수업","숙제","시험","수행평가","급식","종례","자습","출석","칠판","교과서","필기","발표","팀플","교무실","복도","쉬는시간"],
+    game: ["랭크","큐","매치","킬","데스","어시","궁","에임","헤드샷","핑","렉","티어","멘탈","캐리","트롤","연패","연승","매칭","픽","밴","스킬","쿨타임"],
+    city: ["지하철","버스","횡단보도","편의점","가로등","비","바람","사람들","소음","네온","골목","엘리베이터","신호등","우산","발자국","차 소리"],
+    cosmos: ["우주","별","중력","시간","평행세계","가설","확률","무한","엔트로피","관측","공허","빛","암흑","궤도","신호","좌표"],
+    meta: ["이 문장","이 페이지","이 클릭","이 주제","이 세계관","내 뇌","너의 눈","저장소","자동완성","말버릇","패턴","확률","가중치","학습","로컬스토리지"]
+  };
+
+  // ---------------------------
+  // 주제별 “가중 단어 세트”
+  // ---------------------------
+  const TOPIC_WORDS = {
+    DEVIL: { agent:["악마","망령","그림자","유혹","심연","검은 농담","공허"], moodTag:"😈" },
+    MAGIC: { agent:["마법","주문","룬","결계","포탈","기적","이상한 규칙"], moodTag:"🪄" },
+    WORM:  { agent:["지렁이","흙","땅속","바닥","미세한 생명","진흙","먼지"], moodTag:"🪱" },
+    NIGHT: { agent:["새벽","잠","몽롱","잔상","가로등","하얀 소음","눈꺼풀"], moodTag:"🌙" },
+    SCHOOL:{ agent:["수업","숙제","칠판","교실","종례","수행평가","필기"], moodTag:"🏫" },
+    TECH:  { agent:["버그","로그","캐시","서버","포트","프록시","권한"], moodTag:"🧩" },
+    GAME:  { agent:["랭크","멘탈","쿨타임","픽","밴","연패","캐리"], moodTag:"🎮" },
+    FRIEND:{ agent:["친구","채팅","DM","읽씹","대답","이모지","말투"], moodTag:"💬" },
+    FEEL:  { agent:["허무","불안","안도","쓸쓸함","설렘","무기력","혼란"], moodTag:"🫧" },
+    COSMOS:{ agent:["우주","별","확률","관측","공허","시간","신호"], moodTag:"🛰️" },
+    CITY:  { agent:["지하철","가로등","네온","소음","골목","신호등","비"], moodTag:"🏙️" },
+    META:  { agent:["이 문장","이 클릭","패턴","가중치","학습","저장소","자동완성"], moodTag:"🪞" }
+  };
+
+  // ---------------------------
+  // 패턴 45개 (길이/형태 다양)
+  // ---------------------------
+  const PAT = [
+    // 짧은 미친 말
+    "{opener} {subject} {opener} {agent}.",
+    "{subject}는 무죄고 {agent}가 유죄다.",
+    "{opener}… {agent}가 나를 {action}.",
+    "{agent} : '{opener}.'\n나 : '{opener}…?'",
+    "{opener}. 오늘은 {subject}를 믿지 마.",
+    "지금 {agent}가 내 생각을 리라이트 중.",
+
+    // 중간 길이
+    "{time}에 {subject} 옆에서 {agent}가 {action}. {connector} 난 그냥 {opener}.",
+    "{connector} {agent}는 착한 척했고, {subject}는 조용했고, 나는 과하게 깨어있었다.",
+    "{time}에 {person}가 말했다.\n'{opener} {connector} {agent} 같은 소리 하지 마.'",
+    "{subject}를 만졌더니 {emotion}이 묻어나왔다. {connector} {agent}의 탓이다.",
+    "내가 {opener} 하는 속도가 {tech}보다 빠르다. {connector} 역시 문제는 {agent}.",
+    "{connector} 이건 {dreamOrReal}이 아니라 그냥 {agent}다.",
+
+    // 대화체/메타
+    "Q: 지금 뭐해?\nA: {agent}랑 {subject}로 {tech} 고치는 중.\nQ: 그게 돼?\nA: {opener}.",
+    "나: {opener}\n{agent}: {connector} {opener}\n나: …(침묵)\n{agent}: (승리)",
+    "이 문장은 {meta} 때문에 계속 살아남는다. {connector} 너가 눌러서.",
+
+    // 학교
+    "{schoolThing} 하다가 {agent} 생각나면 진짜 끝이다.",
+    "교실에서 {subject}를 보자마자 든 생각: '{agent}…'",
+    "{connector} 수행평가보다 {agent}가 더 무섭다.",
+
+    // 기술
+    "{techThing} 터졌는데도 {opener} 하는 내가 더 무섭다.",
+    "해결책: {techThing} 재시작.\n부작용: {agent} 등장.",
+    "{connector} 캐시는 지워도 {agent}는 안 지워진다.",
+
+    // 게임
+    "{connector} {gameThing} 때문에 {emotion}이 터졌다. {agent}는 웃고 있었다.",
+    "오늘의 패치노트: {gameThing} 하향.\n{agent} 상향.",
+    "연패 중인데 {subject}가 위로했다. '그래도 {opener}.'",
+
+    // 도시/우주
+    "{cityThing} 지나가다가 {agent}를 봤다.\n그건 내 눈의 {tech}였다.",
+    "{cosmosThing} 같은 소리 하지 마.\n근데 왜 맞는 말 같지?",
+    "{connector} 우주가 넓은 게 아니라 내 {emotion}이 넓은 거다.",
+
+    // 감정/자기고백
+    "{connector} 난 괜찮은 척을 {action}. {agent}는 그걸 알고 있었다.",
+    "{opener}. 사실 {emotion}이 계속 남아.",
+    "말을 줄이면 마음이 늘어난다.\n{connector} 그래서 {agent}를 키웠다.",
+
+    // 장문/시 같은 것
+    "{time}\n{subject} 위에 {agent}\n그리고 {person}\n{connector} 나는 {opener}.",
+    "규칙 1: {subject}를 의심해.\n규칙 2: {agent}를 과신하지 마.\n규칙 3: 그래도 {opener}.",
+    "{connector} 이건 예언이 아니다.\n그냥 {agent}가 남긴 로그다.",
+
+    // 랜덤 구조
+    "{subject} → {agent} → {techThing}\n결론: {opener}.",
+    "가끔은 {agent}가 아니라 {person}이 문제다.\n{connector} 근데 둘 다 나다.",
+    "{connector} 너가 이걸 읽는 순간, {agent}는 이미 성공했다."
+  ];
+
+  // 패턴 보조 토큰 (주제별로 더 뽑힐 수 있게)
+  function token(topic){
+    const tw = TOPIC_WORDS[topic] || TOPIC_WORDS.META;
+
+    return {
+      opener: pick(LEX.opener),
+      connector: pick(LEX.connector),
+      time: pick(LEX.time),
+      subject: pick(LEX.subject),
+      person: pick(LEX.person),
+      agent: weightedPick([
+        { value: pick(tw.agent), weight: 3.2 },
+        { value: pick(LEX.creature), weight: 1.0 },
+        { value: pick(LEX.magic), weight: 1.1 }
+      ]),
+      action: pick(LEX.action),
+      emotion: pick(LEX.emotion),
+      tech: pick(LEX.tech),
+      meta: pick(LEX.meta),
+      dreamOrReal: pick(["꿈","현실","환각","기억","버그","기분","연출"]),
+      schoolThing: pick(LEX.school),
+      techThing: pick(LEX.tech),
+      gameThing: pick(LEX.game),
+      cityThing: pick(LEX.city),
+      cosmosThing: pick(LEX.cosmos),
+    };
+  }
+
+  // ---------------------------
+  // 씨드 문장 풀(초기 + 주제별)
+  // ---------------------------
+  const seedLines = [
+    "당근 응 악마? 응 마법 지렁이.",
+    "응… 어… 어….(생각 로딩중)",
+    "악마가 말했다: '응.' 그리고 그게 끝이었다.",
+    "마법은 있었는데, 사용법이 없었다.",
+    "지렁이는 흙을 먹고도 멀쩡했다. 나는 말을 먹고 무너진다.",
+    "오늘도 세계는 정상이고, 나만 업데이트 실패.",
+    "설명하려고 하면 더 틀어진다. 그래서 {opener}.",
+    "이건 분명 말이 안 되는데, 기분은 맞다."
+  ];
+
+  const topicSeed = {
+    DEVIL: [
+      "악마는 친절했다. 그래서 더 의심스러웠다.",
+      "검은 농담이 아니라 검은 진실이었다.",
+      "심연을 봤더니 심연이 로그인했다."
+    ],
+    MAGIC: [
+      "주문을 외웠는데 내 이름이 나왔다.",
+      "포탈은 열렸는데 목적지가 나였다.",
+      "기적이 일어났는데, 버그로 처리됐다."
+    ],
+    WORM: [
+      "지렁이는 조용히 일한다. 그래서 무섭다.",
+      "흙은 다 알고 있다. 말만 안 할 뿐.",
+      "바닥은 늘 정직하다. 난 늘 미끄럽다."
+    ],
+    TECH: [
+      "버그를 잡았더니 새 버그가 상속됐다.",
+      "캐시를 지우면 마음도 지워지면 좋겠다.",
+      "재시작은 해결책이 아니라 기도다."
+    ],
+    GAME: [
+      "멘탈이 먼저 죽고, 그 다음에 게임이 죽는다.",
+      "연패는 숫자가 아니라 분위기다.",
+      "캐리는 실력이고, 연패는 운명이다."
+    ],
+    SCHOOL: [
+      "칠판은 진실을 적고, 나는 거짓말처럼 졸았다.",
+      "숙제는 미룰수록 무거워진다.",
+      "수행평가는 내 정신력 테스트다."
+    ],
+    META: [
+      "이 문장은 너의 클릭으로 살아남는다.",
+      "패턴은 반복이 아니라 기억이다.",
+      "로컬 저장이란, 후회를 지우지 못한다는 뜻."
+    ],
+    NIGHT: [
+      "새벽은 변명을 잘 들어준다.",
+      "잠이 오면 좋겠는데, 생각이 더 깨어있다.",
+      "가로등이 내 기분을 대신 켜준다."
+    ],
+    FRIEND: [
+      "읽씹은 대답보다 많은 걸 말한다.",
+      "이모지 하나로 감정이 전송된다(가끔 오배송).",
+      "친구는 가까운데, 말은 멀다."
+    ],
+    FEEL: [
+      "괜찮은 척이 제일 피곤하다.",
+      "웃고 있는데 속은 조용하지 않다.",
+      "감정은 저장되는데, 설명은 실패한다."
+    ],
+    COSMOS: [
+      "우주가 넓어서 외로운 게 아니다.",
+      "확률이란 이름으로 운명이 들어온다.",
+      "신호가 안 잡히는 게 아니라 내가 안 보내는 거다."
+    ],
+    CITY: [
+      "도시는 밝고, 사람은 어둡고, 나는 중간이다.",
+      "네온은 예쁘고, 소음은 솔직하다.",
+      "비가 오면 생각이 더 잘 들린다."
+    ]
+  };
+
+  // ---------------------------
+  // 상태: 학습/저장
+  // ---------------------------
+  let clicks = load(KEY.clicks, 0);
+  let userLines = load(KEY.lines, []);
+  let mixTopics = load(KEY.mix, true); // 수동 주제에서도 일부 섞기
+
+  // core bias (악마/마법/지렁이 축)
+  const bias = load(KEY.bias, { devil: 1, magic: 1, worm: 1 });
+
+  // topic bias (12개)
+  const topicBias = load(KEY.topicBias, Object.fromEntries(Object.keys(TOPICS).map(k=>[k,1])));
+
+  // 현재 주제
+  let currentTopic = load(KEY.topic, "AUTO");
+
+  // ---------------------------
+  // DOM
+  // ---------------------------
+  const el = {
+    sentence: document.getElementById("sentence"),
+    topicChip: document.getElementById("topicChip"),
+    moodChip: document.getElementById("moodChip"),
+    countChip: document.getElementById("countChip"),
+    seedInfo: document.getElementById("seedInfo"),
+    topicSelect: document.getElementById("topicSelect"),
+
+    barDevil: document.getElementById("barDevil"),
+    barMagic: document.getElementById("barMagic"),
+    barWorm: document.getElementById("barWorm"),
+    pctDevil: document.getElementById("pctDevil"),
+    pctMagic: document.getElementById("pctMagic"),
+    pctWorm: document.getElementById("pctWorm"),
+  };
+
+  // 주제 셀렉트 채우기
+  (function fillTopics(){
+    const keys = Object.keys(TOPICS);
+    for(const k of keys){
+      const opt = document.createElement("option");
+      opt.value = k;
+      opt.textContent = TOPICS[k];
+      el.topicSelect.appendChild(opt);
+    }
+  })();
+
+  // ---------------------------
+  // HUD
+  // ---------------------------
+  function normalizeCoreBias(){
     const total = bias.devil + bias.magic + bias.worm;
     return {
       devil: bias.devil/total,
@@ -409,10 +642,8 @@
       worm: bias.worm/total
     };
   }
-
-  function moodFromBias(n){
-    // 제일 큰 값을 무드로
-    const entries = Object.entries(n).sort((a,b)=> b[1]-a[1]);
+  function moodFromCore(n){
+    const entries = Object.entries(n).sort((a,b)=>b[1]-a[1]);
     const top = entries[0][0];
     const pct = Math.round(entries[0][1]*100);
     if(top==="devil") return `MOOD: 악마 ${pct}% 😈`;
@@ -421,9 +652,9 @@
   }
 
   function updateHUD(){
-    const n = normalizeBias();
-    el.mood.textContent = moodFromBias(n);
-    el.count.textContent = "#" + String(clicks).padStart(3,"0");
+    const n = normalizeCoreBias();
+    el.moodChip.textContent = moodFromCore(n);
+    el.countChip.textContent = "#" + String(clicks).padStart(3,"0");
 
     const d = Math.round(n.devil*100);
     const m = Math.round(n.magic*100);
@@ -432,97 +663,148 @@
     el.barDevil.style.width = d + "%";
     el.barMagic.style.width = m + "%";
     el.barWorm.style.width = w + "%";
-
     el.pctDevil.textContent = d + "%";
     el.pctMagic.textContent = m + "%";
     el.pctWorm.textContent = w + "%";
 
-    el.seedInfo.textContent = `bias: 악마×${bias.devil.toFixed(1)} / 마법×${bias.magic.toFixed(1)} / 지렁이×${bias.worm.toFixed(1)}`;
+    const topicName = currentTopic==="AUTO" ? "AUTO" : TOPICS[currentTopic];
+    el.topicChip.textContent = "TOPIC: " + topicName;
+
+    el.seedInfo.textContent =
+      `bias(core): 악마×${bias.devil.toFixed(1)} / 마법×${bias.magic.toFixed(1)} / 지렁이×${bias.worm.toFixed(1)} · ` +
+      `topic-mix: ${mixTopics ? "ON" : "OFF"}`;
+
+    el.topicSelect.value = currentTopic;
   }
 
   // ---------------------------
-  // 5) 문장 생성(진화)
+  // 학습(주제 + core)
+  // ---------------------------
+  function learnCoreFromText(text, amt){
+    const t = String(text);
+    if(t.includes("악마") || t.includes("그림자") || t.includes("심연")) bias.devil += amt;
+    if(t.includes("마법") || t.includes("주문") || t.includes("룬") || t.includes("포탈")) bias.magic += amt;
+    if(t.includes("지렁이") || t.includes("흙") || t.includes("진흙") || t.includes("바닥")) bias.worm += amt;
+    save(KEY.bias, bias);
+  }
+
+  function learnTopic(topic, amt){
+    topicBias[topic] = (topicBias[topic] ?? 1) + amt;
+    save(KEY.topicBias, topicBias);
+  }
+
+  function autoPickTopic(){
+    // topicBias 기반 룰렛
+    const options = Object.keys(TOPICS).map(k=>({ value:k, weight: topicBias[k] ?? 1 }));
+    return weightedPick(options);
+  }
+
+  // ---------------------------
+  // 주제 섞기(수동이어도 조금 섞이게)
+  // ---------------------------
+  function effectiveTopic(){
+    if(currentTopic === "AUTO") return autoPickTopic();
+    if(!mixTopics) return currentTopic;
+
+    // 수동 주제라도 25% 확률로 다른 주제 섞음(과하게 고정되는 거 방지)
+    if(Math.random() < 0.25) return autoPickTopic();
+    return currentTopic;
+  }
+
+  // ---------------------------
+  // 문장 생성: 다양도 핵심
   // ---------------------------
   function generate(){
-    // 45%: (seed + user) 풀에서 뽑기
-    // 55%: 생성기로 조합하기
-    const pool = [...seedLines, ...userLines];
+    const tpc = effectiveTopic();
+    const tw = TOPIC_WORDS[tpc] || TOPIC_WORDS.META;
 
+    // 풀 구성: 기본 + 주제 씨드 + 유저 문장
+    const pool = [
+      ...seedLines.map(s=>s),
+      ...(topicSeed[tpc] || []),
+      ...userLines
+    ];
+
+    // 선택 로직: 풀/생성기/짧은말/메타
     const mode = weightedPick([
-      { value:"pool", weight: 45 },
-      { value:"gen",  weight: 55 },
+      { value:"POOL", weight: 32 },
+      { value:"GEN",  weight: 58 },
+      { value:"SHORT",weight: 10 }
     ]);
 
-    if(mode === "pool" && pool.length){
-      const line = pick(pool);
-      // 풀에서 뽑혔을 때도 바이어스 약간 학습(등장 단어 체크)
-      learnFromText(line, 0.18);
-      return line;
+    let out = "";
+
+    if(mode === "POOL" && pool.length){
+      out = pick(pool);
+      // 템플릿 토큰이 있으면 한번 포맷해주기
+      if(out.includes("{opener}")){
+        out = format(out, token(tpc));
+      }
+      learnCoreFromText(out, 0.18);
+    }
+    else if(mode === "SHORT"){
+      const pack = [
+        `${pick(LEX.opener)} ${pick(tw.agent)}.`,
+        `${pick(LEX.subject)}? ${pick(LEX.opener)}.`,
+        `${pick(LEX.opener)}… ${pick(LEX.emotion)}.`,
+        `${pick(LEX.opener)} ${pick(LEX.connector)} ${pick(tw.agent)}.`
+      ];
+      out = pick(pack);
+      learnCoreFromText(out, 0.22);
+    }
+    else {
+      // 생성기
+      const map = token(tpc);
+
+      // core bias를 agent 선택에 섞어서 편향 강화
+      const agentCore = weightedPick([
+        { value:"악마", weight: bias.devil },
+        { value:"마법", weight: bias.magic },
+        { value:"지렁이", weight: bias.worm }
+      ]);
+
+      // 주제 agent를 우선으로 하되 core 단어가 가끔 강제 등장
+      if(Math.random() < 0.32){
+        map.agent = pick(TOPIC_WORDS[
+          agentCore === "악마" ? "DEVIL" :
+          agentCore === "마법" ? "MAGIC" : "WORM"
+        ].agent);
+      }
+
+      out = format(pick(PAT), map)
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+      // 학습: 주제 + 코어
+      learnCoreFromText(out, 0.26);
     }
 
-    // 생성기: agent 선택에 bias를 반영
-    const agent = weightedPick([
-      { value:"악마", weight: bias.devil },
-      { value:"마법", weight: bias.magic },
-      { value:"지렁이", weight: bias.worm }
-    ]);
+    // 주제 학습
+    learnTopic(tpc, 0.22);
 
-    // agent에 따라 주변 단어도 살짝 바꾸기
-    const agentAlt = {
-      "악마": ["악마","망령","그림자","유혹","검은 농담"],
-      "마법": ["마법","주문","기적","룬","이상한 규칙"],
-      "지렁이": ["지렁이","흙","미세한 생명","바닥","땅속 비밀"]
-    };
-
-    const map = {
-      opener: pick(parts.opener),
-      subject: pick(parts.subject),
-      agent: pick(agentAlt[agent] || parts.agent),
-      action: pick(parts.action),
-      ending: format(pick(parts.ending), { opener: pick(parts.opener) })
-    };
-
-    const sentence = format(pick(patterns), map)
-      .replace(/\s{2,}/g, " ")
-      .trim();
-
-    // 생성기 결과는 agent 기반으로 학습 좀 더 강하게
-    learnFromCore(agent, 0.28);
-    return sentence;
+    // 현재 보여주는 주제 칩은 AUTO면 "AUTO"로 유지, 수동이면 그대로
+    return { text: out, usedTopic: tpc, tag: tw.moodTag };
   }
 
-  function learnFromCore(agentWord, amt){
-    // 핵심 단어를 많이 볼수록 그쪽 bias가 커짐
-    if(agentWord.includes("악마")) bias.devil += amt;
-    else if(agentWord.includes("마법") || agentWord.includes("주문")) bias.magic += amt;
-    else if(agentWord.includes("지렁이") || agentWord.includes("흙")) bias.worm += amt;
-    save(KEY.bias, bias);
-  }
-
-  function learnFromText(text, amt){
-    // 텍스트 안에 핵심 단어가 있으면 bias 보정
-    const t = String(text);
-    if(core.devil.some(w=>t.includes(w))) bias.devil += amt;
-    if(core.magic.some(w=>t.includes(w))) bias.magic += amt;
-    if(core.worm.some(w=>t.includes(w))) bias.worm += amt;
-    save(KEY.bias, bias);
-  }
-
+  // ---------------------------
+  // 다음 문장
+  // ---------------------------
   function next(){
-    const s = generate();
+    const g = generate();
     clicks++;
     save(KEY.clicks, clicks);
 
     el.sentence.classList.remove("show");
     setTimeout(()=>{
-      el.sentence.textContent = s;
+      el.sentence.textContent = g.text;
       el.sentence.classList.add("show");
       updateHUD();
+      spawnFloat(); // bias 반영해서 배경도 갱신
     }, 150);
   }
 
   // ---------------------------
-  // 6) 액션
+  // 복사 / 추가 / 리셋
   // ---------------------------
   function copyCurrent(){
     const t = el.sentence.textContent.trim();
@@ -540,57 +822,67 @@
   }
 
   function addLine(){
-    const input = prompt("너의 문장을 추가해줘 (이상할수록 좋음):");
+    const input = prompt("추가할 문장 입력 (길어도 됨 / 이상할수록 환영):");
     if(!input) return;
     const line = input.trim();
     if(!line) return;
 
     userLines.unshift(line);
-    userLines = [...new Set(userLines)].slice(0, 250);
+    userLines = [...new Set(userLines)].slice(0, 400);
     save(KEY.lines, userLines);
 
-    learnFromText(line, 0.35); // 추가한 문장은 바로 학습 강하게
+    learnCoreFromText(line, 0.45); // 추가 문장은 학습 강하게
     toast("문장 추가 완료");
     next();
   }
 
   function resetAll(){
-    if(!confirm("진짜 리셋? (추가 문장/클릭/바이어스 전부 초기화)")) return;
+    if(!confirm("진짜 리셋? (추가 문장/클릭/바이어스/주제 학습 전부 초기화)")) return;
     localStorage.removeItem(KEY.lines);
     localStorage.removeItem(KEY.clicks);
     localStorage.removeItem(KEY.bias);
+    localStorage.removeItem(KEY.topicBias);
+    localStorage.removeItem(KEY.topic);
+    localStorage.removeItem(KEY.mix);
+
     userLines = [];
     clicks = 0;
     bias.devil = 1; bias.magic = 1; bias.worm = 1;
+    for(const k of Object.keys(TOPICS)) topicBias[k] = 1;
+    currentTopic = "AUTO";
+    mixTopics = true;
+
     toast("초기화됨");
     updateHUD();
+    spawnFloat();
     next();
   }
 
   // ---------------------------
-  // 7) 배경 단어 떠다니기
+  // 배경 떠다니는 단어(주제/코어 bias 반영)
   // ---------------------------
   function spawnFloat(){
     const host = document.getElementById("float");
     host.innerHTML = "";
-    const n = normalizeBias();
 
-    // bias에 따라 떠다니는 단어 비율도 바꿈
-    const words = [];
-    for(let i=0;i<18;i++){
+    // core 기반으로 카테고리 선택
+    const coreN = normalizeCoreBias();
+
+    function pickWord(){
       const cat = weightedPick([
-        { value:"devil", weight: n.devil },
-        { value:"magic", weight: n.magic },
-        { value:"worm",  weight: n.worm }
+        { value:"devil", weight: coreN.devil },
+        { value:"magic", weight: coreN.magic },
+        { value:"worm",  weight: coreN.worm }
       ]);
-      if(cat==="devil") words.push(pick(["악마","그림자","유혹","검은말","심연"]));
-      if(cat==="magic") words.push(pick(["마법","주문","룬","기적","이상한 규칙"]));
-      if(cat==="worm")  words.push(pick(["지렁이","흙","바닥","땅속","미세한 생명"]));
+      if(cat==="devil") return pick(["악마","그림자","심연","유혹","검은말","망령"]);
+      if(cat==="magic") return pick(["마법","주문","룬","포탈","결계","기적"]);
+      return pick(["지렁이","흙","바닥","진흙","먼지","땅속"]);
     }
 
-    for(const w of words){
+    const N = 20;
+    for(let i=0;i<N;i++){
       const s = document.createElement("span");
-      s.textContent = w;
+      s.textContent = pickWord();
       const dur = 18 + Math.random()*18;
 
       s.style.left = (Math.random()*100) + "vw";
@@ -606,13 +898,34 @@
   }
 
   // ---------------------------
-  // 8) 이벤트
+  // 주제 컨트롤
+  // ---------------------------
+  function setTopic(t){
+    currentTopic = t;
+    save(KEY.topic, currentTopic);
+    toast(currentTopic==="AUTO" ? "주제: AUTO" : `주제: ${TOPICS[currentTopic]}`);
+    updateHUD();
+    next();
+  }
+
+  document.getElementById("btnAuto").addEventListener("click", ()=> setTopic("AUTO"));
+  document.getElementById("btnShuffle").addEventListener("click", ()=>{
+    mixTopics = !mixTopics;
+    save(KEY.mix, mixTopics);
+    toast("주제 섞기: " + (mixTopics ? "ON" : "OFF"));
+    updateHUD();
+  });
+
+  el.topicSelect.addEventListener("change", (e)=> setTopic(e.target.value));
+
+  // ---------------------------
+  // 버튼/키
   // ---------------------------
   document.getElementById("btnNext").addEventListener("click", next);
   document.getElementById("btnCopy").addEventListener("click", copyCurrent);
   document.getElementById("btnAdd").addEventListener("click", addLine);
   document.getElementById("btnReset").addEventListener("click", resetAll);
-  el.sentence.addEventListener("click", next);
+  document.getElementById("sentence").addEventListener("click", next);
 
   window.addEventListener("keydown", (e)=>{
     const k = e.key.toLowerCase();
@@ -620,15 +933,16 @@
     if(k==="c") copyCurrent();
     if(k==="a") addLine();
     if(k==="r") resetAll();
+    if(k==="t"){ setTopic("AUTO"); }
   });
 
   // ---------------------------
-  // 9) 시작
+  // 시작
   // ---------------------------
   updateHUD();
   spawnFloat();
   next();
-  setInterval(spawnFloat, 18000);
+  setInterval(spawnFloat, 20000);
 </script>
 </body>
 </html>
