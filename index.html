@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>악마·마법·지렁이 문장 실험실</title>
+  <style>
+    :root{
+      --bg:#050508;
+      --fg:#ececf4;
+      --muted:#9a9ab0;
+      --line:#232332;
+      --card:#0c0c13cc;
+      --glow: 0 0 40px rgba(255,255,255,.06);
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--fg);
+      background:
+        radial-gradient(900px 600px at 18% 26%, rgba(90,40,120,.28) 0%, transparent 55%),
+        radial-gradient(900px 600px at 82% 72%, rgba(170,45,70,.23) 0%, transparent 58%),
+        radial-gradient(800px 500px at 50% 105%, rgba(20,120,90,.18) 0%, transparent 60%),
+        linear-gradient(180deg, #0a0a12, var(--bg));
+      overflow:hidden;
+      font-family: system-ui, -apple-system, "Pretendard", Segoe UI, Roboto, sans-serif;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    /* 살짝 취한 흔들림 */
+    .sway{ animation: sway 6.8s ease-in-out infinite; transform-origin: 50% 55%; }
+    @keyframes sway{
+      0%{transform: rotate(0deg) translateY(0px)}
+      30%{transform: rotate(0.18deg) translateY(-2px)}
+      65%{transform: rotate(-0.16deg) translateY(1px)}
+      100%{transform: rotate(0deg) translateY(0px)}
+    }
+
+    /* 노이즈 */
+    .grain{
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+      opacity:.075;
+    }
+
+    /* 떠다니는 단어들 */
+    .float{ position:fixed; inset:-20vh -20vw; pointer-events:none; z-index:1; opacity:.22; }
+    .float span{
+      position:absolute; white-space:nowrap; user-select:none;
+      font-size: 13px; letter-spacing:.14em;
+      color:#c7c7d6;
+      opacity:.55;
+      animation: drift linear infinite;
+      filter: blur(.15px);
+    }
+    @keyframes drift{
+      from{ transform: translate3d(var(--x0), var(--y0), 0) }
+      to  { transform: translate3d(var(--x1), var(--y1), 0) }
+    }
+
+    .wrap{
+      width:min(980px, 92vw);
+      padding:24px;
+      position:relative;
+      z-index:2;
+    }
+
+    .top{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:14px; margin-bottom:14px;
+    }
+    .brand{ display:flex; flex-direction:column; gap:6px; }
+    .title{
+      font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .subtitle{
+      font-size:14px; color:#cfcfe0; opacity:.9;
+    }
+
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .chip{
+      border:1px solid var(--line);
+      background:#0b0b13aa;
+      padding:9px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:#d9d9e7;
+      box-shadow: var(--glow);
+      user-select:none;
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:var(--card);
+      backdrop-filter: blur(10px);
+      border-radius:20px;
+      padding:20px;
+      box-shadow: var(--shadow);
+    }
+
+    .sentence{
+      font-size: clamp(22px, 3.0vw, 40px);
+      line-height:1.35;
+      letter-spacing:-0.02em;
+      white-space:pre-wrap;
+      word-break:keep-all;
+      opacity:0;
+      transform: translateY(10px);
+      filter: blur(.25px);
+      transition: opacity .38s ease, transform .38s ease, filter .38s ease;
+      cursor:pointer;
+      user-select:none;
+    }
+    .sentence.show{
+      opacity:1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .hud{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width: 740px){
+      .hud{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      border:1px solid var(--line);
+      background:#090910a8;
+      border-radius:16px;
+      padding:14px 14px 12px;
+      box-shadow: var(--glow);
+    }
+    .panel h3{
+      margin:0 0 10px;
+      font-size:12px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:#bdbdd0;
+      font-weight:650;
+    }
+
+    .bars{ display:flex; flex-direction:column; gap:10px; }
+    .barrow{ display:grid; grid-template-columns: 64px 1fr 44px; gap:10px; align-items:center; }
+    .label{ font-size:12px; color:#d9d9e7; opacity:.95; }
+    .track{ height:10px; border-radius:999px; border:1px solid var(--line); background:#07070d; overflow:hidden; }
+    .fill{ height:100%; width:0%; border-radius:999px; background: linear-gradient(90deg, rgba(255,255,255,.10), rgba(255,255,255,.22)); transition: width .45s ease; }
+    .pct{ font-size:12px; color:#bdbdd0; text-align:right; }
+
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; }
+    button{
+      border:1px solid var(--line);
+      background:#0a0a12;
+      color:var(--fg);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:13px;
+      box-shadow: var(--glow);
+    }
+    button:hover{ filter:brightness(1.14); }
+    button:active{ transform: translateY(1px); }
+
+    .tiny{
+      margin-top:10px;
+      font-size:12px;
+      color:#a8a8be;
+      line-height:1.55;
+      opacity:.95;
+    }
+    kbd{
+      border:1px solid var(--line);
+      border-bottom-width:2px;
+      padding:2px 6px;
+      border-radius:7px;
+      font-size:11px;
+      background:#0a0a12;
+      color:#e6e6f2;
+    }
+
+    /* 토스트 */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:20px;
+      transform:translateX(-50%);
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#0b0b13cc;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--glow);
+      color:var(--fg);
+      font-size:13px;
+      opacity:0;
+      transition: opacity .18s ease;
+      z-index:9999;
+      pointer-events:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="float" id="float"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="wrap sway">
+    <div class="top">
+      <div class="brand">
+        <div class="title">sentence lab</div>
+        <div class="subtitle">악마·마법·지렁이 — 클릭할수록 세계관이 너 쪽으로 학습된다</div>
+      </div>
+      <div class="chips">
+        <div class="chip" id="moodChip">MOOD: ???</div>
+        <div class="chip" id="countChip">#000</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="sentence" class="sentence" title="클릭하면 다음 문장"></div>
+      <div class="meta">
+        <div>클릭/스페이스/엔터: 다음 · <kbd>C</kbd> 복사 · <kbd>A</kbd> 추가 · <kbd>R</kbd> 리셋</div>
+        <div id="seedInfo">bias: -</div>
+      </div>
+
+      <div class="hud">
+        <div class="panel">
+          <h3>world bias</h3>
+          <div class="bars">
+            <div class="barrow">
+              <div class="label">악마</div>
+              <div class="track"><div class="fill" id="barDevil"></div></div>
+              <div class="pct" id="pctDevil">0%</div>
+            </div>
+            <div class="barrow">
+              <div class="label">마법</div>
+              <div class="track"><div class="fill" id="barMagic"></div></div>
+              <div class="pct" id="pctMagic">0%</div>
+            </div>
+            <div class="barrow">
+              <div class="label">지렁이</div>
+              <div class="track"><div class="fill" id="barWorm"></div></div>
+              <div class="pct" id="pctWorm">0%</div>
+            </div>
+          </div>
+          <div class="tiny">
+            너가 문장을 많이 눌러서 나올수록(=많이 본 단어일수록) 그 단어가 더 자주 등장함.<br>
+            즉, 이 사이트는 점점 “너 전용 이상한 문장”이 된다.
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>actions</h3>
+          <div class="btns">
+            <button id="btnNext">다음(Enter)</button>
+            <button id="btnCopy">복사(C)</button>
+            <button id="btnAdd">내 문장 추가(A)</button>
+            <button id="btnReset">리셋(R)</button>
+          </div>
+          <div class="tiny">
+            추가한 문장은 브라우저에 저장됨(로컬 저장). 지워지지 않음.<br>
+            “리셋”하면 저장된 것들까지 싹 초기화됨.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------------------------
+  // 0) 저장/로드
+  // ---------------------------
+  const KEY = {
+    lines: "lab_lines_v1",
+    clicks: "lab_clicks_v1",
+    bias: "lab_bias_v1"
+  };
+
+  function load(k, fallback){
+    try{
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : fallback;
+    }catch{ return fallback; }
+  }
+  function save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+  // ---------------------------
+  // 1) 문장 재료(세계관)
+  // ---------------------------
+  const seedLines = [
+    "당근 응 악마? 응 마법 지렁이.",
+    "응… 어… 어….(생각 로딩중)",
+    "악마가 말했다: '응.' 그리고 그게 끝이었다.",
+    "마법은 있었는데, 사용법이 없었다.",
+    "지렁이는 흙을 먹고도 멀쩡했다. 나는 말을 먹고 무너진다.",
+    "당근은 무죄다. 문제는 내가 의미를 찾는 속도다.",
+    "오늘도 세계는 정상이고, 나만 업데이트 실패.",
+    "응, 근데 왜 이렇게 딱 맞는 기분이지?",
+    "악마와 마법과 지렁이가 한 테이블에 앉아 있었다. 내가 초대했다.",
+    "어쩌면 난 그냥… 설명이 안 되는 타입."
+  ];
+
+  const parts = {
+    opener: ["응", "아니", "어..", "어....", "ㅇㅋ", "ㅇㅇ", "잠깐", "그래", "몰라", "맞아"],
+    subject: ["당근", "새벽", "천장", "바닥", "귓속", "키보드", "심장", "문", "거울", "전파"],
+    agent: ["악마", "마법", "지렁이", "천사", "버그", "주문", "현실", "환각", "알고리즘", "그림자"],
+    action: ["속삭였다", "웃었다", "사라졌다", "남아있었다", "부서졌다", "붙어버렸다", "흘러갔다", "바뀌었다", "뒤집혔다", "잠들었다"],
+    ending: [
+      "그래서 난 그냥 {opener}.",
+      "근데 이상하게도 맞는 말 같다.",
+      "이건 꿈인데 저장이 된다.",
+      "설명하려고 하면 더 틀어진다.",
+      "다음 문장에 모든 걸 맡긴다."
+    ]
+  };
+
+  const patterns = [
+    "{opener}. {subject} 옆에서 {agent}가 {action}. {ending}",
+    "{subject}는 무죄고, {agent}가 유죄고, 난 목격자다.",
+    "{agent}가 내게 말했다: '{opener}, 오늘은 {subject}를 믿지 마.'",
+    "규칙 1: {subject}를 의심해.\n규칙 2: {agent}를 과신하지 마.\n규칙 3: 그래도 {opener}.",
+    "{opener}… 지금 {agent}가 내 생각을 리라이트 중.",
+    "{subject} 위에서 {agent}가 {action}. 나는 로그만 남겼다."
+  ];
+
+  // ---------------------------
+  // 2) '학습'용 바이어스(가중치)
+  // 클릭할수록 DEVIL/MAGIC/WORM(핵심 단어)의 확률이 올라감
+  // ---------------------------
+  const bias = load(KEY.bias, { devil: 1, magic: 1, worm: 1 });
+  let clicks = load(KEY.clicks, 0);
+  let userLines = load(KEY.lines, []);
+
+  // 핵심 단어 사전
+  const core = {
+    devil: ["악마"],
+    magic: ["마법", "주문"],
+    worm: ["지렁이", "흙"]
+  };
+
+  // ---------------------------
+  // 3) UI
+  // ---------------------------
+  const el = {
+    sentence: document.getElementById("sentence"),
+    toast: document.getElementById("toast"),
+    mood: document.getElementById("moodChip"),
+    count: document.getElementById("countChip"),
+    seedInfo: document.getElementById("seedInfo"),
+    barDevil: document.getElementById("barDevil"),
+    barMagic: document.getElementById("barMagic"),
+    barWorm: document.getElementById("barWorm"),
+    pctDevil: document.getElementById("pctDevil"),
+    pctMagic: document.getElementById("pctMagic"),
+    pctWorm: document.getElementById("pctWorm"),
+  };
+
+  // ---------------------------
+  // 4) 유틸
+  // ---------------------------
+  const rnd = (n)=> Math.floor(Math.random()*n);
+  function pick(arr){ return arr[rnd(arr.length)]; }
+
+  // 가중치 선택(룰렛)
+  function weightedPick(options){
+    // options: [{value, weight}, ...]
+    const sum = options.reduce((a,o)=>a+o.weight,0);
+    let r = Math.random()*sum;
+    for(const o of options){
+      r -= o.weight;
+      if(r <= 0) return o.value;
+    }
+    return options[options.length-1].value;
+  }
+
+  function format(template, map){
+    return template.replace(/\{(\w+)\}/g, (_,k)=> map[k] ?? `{${k}}`);
+  }
+
+  function toast(msg){
+    el.toast.textContent = msg;
+    el.toast.style.opacity = "1";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> el.toast.style.opacity="0", 900);
+  }
+
+  function normalizeBias(){
+    const total = bias.devil + bias.magic + bias.worm;
+    return {
+      devil: bias.devil/total,
+      magic: bias.magic/total,
+      worm: bias.worm/total
+    };
+  }
+
+  function moodFromBias(n){
+    // 제일 큰 값을 무드로
+    const entries = Object.entries(n).sort((a,b)=> b[1]-a[1]);
+    const top = entries[0][0];
+    const pct = Math.round(entries[0][1]*100);
+    if(top==="devil") return `MOOD: 악마 ${pct}% 😈`;
+    if(top==="magic") return `MOOD: 마법 ${pct}% 🪄`;
+    return `MOOD: 지렁이 ${pct}% 🪱`;
+  }
+
+  function updateHUD(){
+    const n = normalizeBias();
+    el.mood.textContent = moodFromBias(n);
+    el.count.textContent = "#" + String(clicks).padStart(3,"0");
+
+    const d = Math.round(n.devil*100);
+    const m = Math.round(n.magic*100);
+    const w = 100 - d - m;
+
+    el.barDevil.style.width = d + "%";
+    el.barMagic.style.width = m + "%";
+    el.barWorm.style.width = w + "%";
+
+    el.pctDevil.textContent = d + "%";
+    el.pctMagic.textContent = m + "%";
+    el.pctWorm.textContent = w + "%";
+
+    el.seedInfo.textContent = `bias: 악마×${bias.devil.toFixed(1)} / 마법×${bias.magic.toFixed(1)} / 지렁이×${bias.worm.toFixed(1)}`;
+  }
+
+  // ---------------------------
+  // 5) 문장 생성(진화)
+  // ---------------------------
+  function generate(){
+    // 45%: (seed + user) 풀에서 뽑기
+    // 55%: 생성기로 조합하기
+    const pool = [...seedLines, ...userLines];
+
+    const mode = weightedPick([
+      { value:"pool", weight: 45 },
+      { value:"gen",  weight: 55 },
+    ]);
+
+    if(mode === "pool" && pool.length){
+      const line = pick(pool);
+      // 풀에서 뽑혔을 때도 바이어스 약간 학습(등장 단어 체크)
+      learnFromText(line, 0.18);
+      return line;
+    }
+
+    // 생성기: agent 선택에 bias를 반영
+    const agent = weightedPick([
+      { value:"악마", weight: bias.devil },
+      { value:"마법", weight: bias.magic },
+      { value:"지렁이", weight: bias.worm }
+    ]);
+
+    // agent에 따라 주변 단어도 살짝 바꾸기
+    const agentAlt = {
+      "악마": ["악마","망령","그림자","유혹","검은 농담"],
+      "마법": ["마법","주문","기적","룬","이상한 규칙"],
+      "지렁이": ["지렁이","흙","미세한 생명","바닥","땅속 비밀"]
+    };
+
+    const map = {
+      opener: pick(parts.opener),
+      subject: pick(parts.subject),
+      agent: pick(agentAlt[agent] || parts.agent),
+      action: pick(parts.action),
+      ending: format(pick(parts.ending), { opener: pick(parts.opener) })
+    };
+
+    const sentence = format(pick(patterns), map)
+      .replace(/\s{2,}/g, " ")
+      .trim();
+
+    // 생성기 결과는 agent 기반으로 학습 좀 더 강하게
+    learnFromCore(agent, 0.28);
+    return sentence;
+  }
+
+  function learnFromCore(agentWord, amt){
+    // 핵심 단어를 많이 볼수록 그쪽 bias가 커짐
+    if(agentWord.includes("악마")) bias.devil += amt;
+    else if(agentWord.includes("마법") || agentWord.includes("주문")) bias.magic += amt;
+    else if(agentWord.includes("지렁이") || agentWord.includes("흙")) bias.worm += amt;
+    save(KEY.bias, bias);
+  }
+
+  function learnFromText(text, amt){
+    // 텍스트 안에 핵심 단어가 있으면 bias 보정
+    const t = String(text);
+    if(core.devil.some(w=>t.includes(w))) bias.devil += amt;
+    if(core.magic.some(w=>t.includes(w))) bias.magic += amt;
+    if(core.worm.some(w=>t.includes(w))) bias.worm += amt;
+    save(KEY.bias, bias);
+  }
+
+  function next(){
+    const s = generate();
+    clicks++;
+    save(KEY.clicks, clicks);
+
+    el.sentence.classList.remove("show");
+    setTimeout(()=>{
+      el.sentence.textContent = s;
+      el.sentence.classList.add("show");
+      updateHUD();
+    }, 150);
+  }
+
+  // ---------------------------
+  // 6) 액션
+  // ---------------------------
+  function copyCurrent(){
+    const t = el.sentence.textContent.trim();
+    if(!t) return;
+    navigator.clipboard?.writeText(t).then(()=> toast("복사됨"), ()=> fallbackCopy(t));
+  }
+  function fallbackCopy(text){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand("copy"); toast("복사됨"); }
+    catch{ toast("복사 실패(권한)"); }
+    ta.remove();
+  }
+
+  function addLine(){
+    const input = prompt("너의 문장을 추가해줘 (이상할수록 좋음):");
+    if(!input) return;
+    const line = input.trim();
+    if(!line) return;
+
+    userLines.unshift(line);
+    userLines = [...new Set(userLines)].slice(0, 250);
+    save(KEY.lines, userLines);
+
+    learnFromText(line, 0.35); // 추가한 문장은 바로 학습 강하게
+    toast("문장 추가 완료");
+    next();
+  }
+
+  function resetAll(){
+    if(!confirm("진짜 리셋? (추가 문장/클릭/바이어스 전부 초기화)")) return;
+    localStorage.removeItem(KEY.lines);
+    localStorage.removeItem(KEY.clicks);
+    localStorage.removeItem(KEY.bias);
+    userLines = [];
+    clicks = 0;
+    bias.devil = 1; bias.magic = 1; bias.worm = 1;
+    toast("초기화됨");
+    updateHUD();
+    next();
+  }
+
+  // ---------------------------
+  // 7) 배경 단어 떠다니기
+  // ---------------------------
+  function spawnFloat(){
+    const host = document.getElementById("float");
+    host.innerHTML = "";
+    const n = normalizeBias();
+
+    // bias에 따라 떠다니는 단어 비율도 바꿈
+    const words = [];
+    for(let i=0;i<18;i++){
+      const cat = weightedPick([
+        { value:"devil", weight: n.devil },
+        { value:"magic", weight: n.magic },
+        { value:"worm",  weight: n.worm }
+      ]);
+      if(cat==="devil") words.push(pick(["악마","그림자","유혹","검은말","심연"]));
+      if(cat==="magic") words.push(pick(["마법","주문","룬","기적","이상한 규칙"]));
+      if(cat==="worm")  words.push(pick(["지렁이","흙","바닥","땅속","미세한 생명"]));
+    }
+
+    for(const w of words){
+      const s = document.createElement("span");
+      s.textContent = w;
+      const dur = 18 + Math.random()*18;
+
+      s.style.left = (Math.random()*100) + "vw";
+      s.style.top  = (Math.random()*100) + "vh";
+      s.style.animationDuration = dur + "s";
+      s.style.setProperty("--x0", (Math.random()*120-10) + "vw");
+      s.style.setProperty("--y0", (Math.random()*120-10) + "vh");
+      s.style.setProperty("--x1", (Math.random()*120-10) + "vw");
+      s.style.setProperty("--y1", (Math.random()*120-10) + "vh");
+      s.style.opacity = (0.25 + Math.random()*0.35).toFixed(2);
+      host.appendChild(s);
+    }
+  }
+
+  // ---------------------------
+  // 8) 이벤트
+  // ---------------------------
+  document.getElementById("btnNext").addEventListener("click", next);
+  document.getElementById("btnCopy").addEventListener("click", copyCurrent);
+  document.getElementById("btnAdd").addEventListener("click", addLine);
+  document.getElementById("btnReset").addEventListener("click", resetAll);
+  el.sentence.addEventListener("click", next);
+
+  window.addEventListener("keydown", (e)=>{
+    const k = e.key.toLowerCase();
+    if(e.key === " " || e.key === "Enter"){ e.preventDefault(); next(); }
+    if(k==="c") copyCurrent();
+    if(k==="a") addLine();
+    if(k==="r") resetAll();
+  });
+
+  // ---------------------------
+  // 9) 시작
+  // ---------------------------
+  updateHUD();
+  spawnFloat();
+  next();
+  setInterval(spawnFloat, 18000);
+</script>
+</body>
+</html>
